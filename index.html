@@ -1,0 +1,281 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Animal Rescue Simulator</title>
+</head>
+  <script src="pixi.min.js"></script>
+<body>
+  <script type="text/javascript">
+    let type = "WebGL"
+    if(!PIXI.utils.isWebGLSupported()){
+      type = "canvas"
+    }
+		
+		//Aliases
+		let Application = PIXI.Application,
+				loader = PIXI.loader,
+				resources = PIXI.loader.resources,
+				Sprite = PIXI.Sprite;
+				Rectangle = PIXI.Rectangle;
+
+		//Create a Pixi Applirocketion
+		let app = new Application({ 
+				width: 512, 
+				height: 512,                       
+				antialias: true, 
+				transparent: false, 
+				resolution: 1
+			}
+		);
+
+		//Add the canvas that Pixi automatically created for you to the HTML document
+		document.body.appendChild(app.view);
+
+		//load an image and run the `setup` function when it's done
+		loader
+			.add("avatar2.jpg")
+			.add("tileset.png")
+			.load(setup);
+
+		let state, message, player, lion, cat;
+		
+		//This `setup` function will run when the image has loaded
+		function setup() {
+		
+			// A place to display messages
+			message = new PIXI.Text("Hello Pixi!");
+			app.stage.addChild(message);
+			message.position.set(20, 460);
+			message.style = {fill: "white", font: "16px PetMe64"};
+			
+				
+			//USE A TILESET
+			
+			//Create the `tileset` sprite from the texture and
+			//Create a rectangle object that defines the position and
+			//size of the sub-image you want to extract from the texture
+			let texture1 = new PIXI.Texture(loader.resources["tileset.png"].texture﻿, new PIXI.Rectangle(128, 0, 64, 64));
+			
+			//Create the player sprite from the texture
+			player = new Sprite(texture1);			
+
+			//Position the player sprite on the canvas
+			player.x = 0;
+			player.y = 10;
+			
+			// set its velocity
+			player.vx = 0;
+			player.vy = 0;
+			
+			//Add the player to the stage
+			app.stage.addChild(player);
+			
+			
+			// Create an Animal sprite
+			let texture2 = new PIXI.Texture(loader.resources["tileset.png"].texture﻿, new PIXI.Rectangle(64, 0, 64, 64));
+			lion = new Sprite(texture2);
+			
+			//Position the Animal sprite and add to stage
+			lion.x = 400;
+			lion.y = 25;	
+      app.stage.addChild(lion);
+      
+      // Create an Animal sprite
+			let texture3 = new PIXI.Texture(loader.resources["tileset.png"].texture﻿, new PIXI.Rectangle(0, 64, 64, 64));
+			cat = new Sprite(texture3);
+			
+			//Position the Animal sprite and add to stage
+			cat.x = 60;
+			cat.y = 255;	
+			app.stage.addChild(cat);
+			
+			
+      // KEYBOARD FOR MOVEMENT
+			//Capture the keyboard arrow keys
+      let left = keyboard(37),
+          up = keyboard(38),
+          right = keyboard(39),
+          down = keyboard(40);
+      //Left arrow key `press` method
+      left.press = () => {
+        //Change the player's velocity when the key is pressed
+        player.vx = -5;
+        player.vy = 0;
+      };
+      
+      //Left arrow key `release` method
+      left.release = () => {
+        //If the left arrow has been released, and the right arrow isn't down,
+        //and the player isn't moving vertically:
+        //Stop the player
+        if (!right.isDown && player.vy === 0) {
+          player.vx = 0;
+        }
+      };
+      //Up
+      up.press = () => {
+        player.vy = -5;
+        player.vx = 0;
+      };
+      up.release = () => {
+        if (!down.isDown && player.vx === 0) {
+          player.vy = 0;
+        }
+      };
+      //Right
+      right.press = () => {
+        player.vx = 5;
+        player.vy = 0;
+      };
+      right.release = () => {
+        if (!left.isDown && player.vy === 0) {
+          player.vx = 0;
+        }
+      };
+      //Down
+      down.press = () => {
+        player.vy = 5;
+        player.vx = 0;
+      };
+      down.release = () => {
+        if (!up.isDown && player.vx === 0) {
+          player.vy = 0;
+        }
+      };
+	
+			//Set the game state
+			state = play;
+			
+			//Start the game loop by adding the `gameLoop` function to
+			//Pixi's `ticker` and providing it with a `delta` argument.
+			app.ticker.add(delta => gameLoop(delta));
+		}
+
+		function gameLoop(delta){
+
+			//Update the current game state:
+			state(delta);
+		}
+
+		function play(delta) {
+			//message.text = player.vx;
+			//Use the player's velocity to make it move
+			player.x += player.vx;
+			player.y += player.vy
+      
+      // make player come back around
+			if (player.x > 512)			
+        player.x = 0;
+      if (player.y > 512)  
+        player.y = 0;
+      if (player.x < 0)			
+        player.x = 512;
+      if (player.y < 0)  
+        player.y = 512;
+		
+				
+			//check for a collision between the player and the box
+			if (hitTestRectangle(player, lion)) {
+				message.text = "Touching";
+      } else if (hitTestRectangle(player, cat)){
+				message.text = "Touching";
+	    } else {
+				message.text = "";
+			}
+					
+		}
+
+		
+		
+		function hitTestRectangle(r1, r2) {
+
+			//Define the variables we'll need to calculate
+			let hit, combinedHalfWidths, combinedHalfHeights, vx, vy;
+
+			//hit will determine whether there's a collision
+			hit = false;
+
+			//Find the center points of each sprite
+			r1.centerX = r1.x + r1.width / 2;
+			r1.centerY = r1.y + r1.height / 2;
+			r2.centerX = r2.x + r2.width / 2;
+			r2.centerY = r2.y + r2.height / 2;
+
+			//Find the half-widths and half-heights of each sprite
+			r1.halfWidth = r1.width / 2;
+			r1.halfHeight = r1.height / 2;
+			r2.halfWidth = r2.width / 2;
+			r2.halfHeight = r2.height / 2;
+
+			//Calculate the distance vector between the sprites
+			vx = r1.centerX - r2.centerX;
+			vy = r1.centerY - r2.centerY;
+
+			//Figure out the combined half-widths and half-heights
+			combinedHalfWidths = r1.halfWidth + r2.halfWidth;
+			combinedHalfHeights = r1.halfHeight + r2.halfHeight;
+
+			//Check for a collision on the x axis
+			if (Math.abs(vx) < combinedHalfWidths) {
+
+				//A collision might be occurring. Check for a collision on the y axis
+				if (Math.abs(vy) < combinedHalfHeights) {
+
+					//There's definitely a collision happening
+					hit = true;
+				} else {
+
+					//There's no collision on the y axis
+					hit = false;
+				}
+			} else {
+
+				//There's no collision on the x axis
+				hit = false;
+			}
+
+			//`hit` will be either `true` or `false`
+			return hit;
+		};
+		
+		
+		//The `keyboard` helper function
+    function keyboard(keyCode) {
+      var key = {};
+      key.code = keyCode;
+      key.isDown = false;
+      key.isUp = true;
+      key.press = undefined;
+      key.release = undefined;
+      //The `downHandler`
+      key.downHandler = event => {
+        if (event.keyCode === key.code) {
+          if (key.isUp && key.press) key.press();
+          key.isDown = true;
+          key.isUp = false;
+        }
+        event.preventDefault();
+      };
+      //The `upHandler`
+      key.upHandler = event => {
+        if (event.keyCode === key.code) {
+          if (key.isDown && key.release) key.release();
+          key.isDown = false;
+          key.isUp = true;
+        }
+        event.preventDefault();
+      };
+      //Attach event listeners
+      window.addEventListener(
+        "keydown", key.downHandler.bind(key), false
+      );
+      window.addEventListener(
+        "keyup", key.upHandler.bind(key), false
+      );
+      return key;
+    }
+		
+  </script>
+</body>
+</html>
