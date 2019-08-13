@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <title>Animal Rescue Simulator</title>
 </head>
+<body>  
   <script src="pixi.min.js"></script>
-<body>
   <script type="text/javascript">
     let type = "WebGL"
     if(!PIXI.utils.isWebGLSupported()){
@@ -21,8 +21,8 @@
 
 		//Create a Pixi Applirocketion
 		let app = new Application({ 
-				width: 512, 
-				height: 512,                       
+				width: 1030, 
+				height: 702,                       
 				antialias: true, 
 				transparent: false, 
 				resolution: 1
@@ -34,36 +34,64 @@
 
 		//load an image and run the `setup` function when it's done
 		loader
-			.add("avatar2.jpg")
+      .add("facility.jpg")
+      .add("streets.png")
+      .add("citydirt.png")
+      .add("city2.png")
+      .add("player.png")
+      .add("van.png")
+      .add("menu.png")
 			.add("tileset.png")
 			.load(setup);
 
-		let state, message, player, lion, cat;
+    let state, message, player, van, menu, lion, cat;
+    let debounce = false;
 		
 		//This `setup` function will run when the image has loaded
-		function setup() {
-		
-			// A place to display messages
+		function setup() {	
+			
+      //Create the Facility sprite
+      let facility = new PIXI.Sprite(PIXI.loader.resources["facility.jpg"].texture);      
+      //Add the sprite to the stage
+      app.stage.addChild(facility);  
+
+      //Create the Other places sprites
+      let streets = new PIXI.Sprite(PIXI.loader.resources["streets.png"].texture);
+      let dirt = new PIXI.Sprite(PIXI.loader.resources["citydirt.png"].texture);
+      let city = new PIXI.Sprite(PIXI.loader.resources["city2.png"].texture);
+
+      // A place to display messages
 			message = new PIXI.Text("Hello Pixi!");
 			app.stage.addChild(message);
-			message.position.set(20, 460);
-			message.style = {fill: "white", font: "16px PetMe64"};
-			
-				
-			//USE A TILESET
-			
+			message.position.set(500, 10);
+			message.style = {fill: "black", font: "16px PetMe64"};
+      
+      //Create and add the Van sprite
+      van = new PIXI.Sprite(PIXI.loader.resources["van.png"].texture); 
+      app.stage.addChild(van);
+      van.scale.set(0.3,0.3);
+      van.x = 15;
+      van.y = 260;
+
+      //Create and add the Menu sprite
+      menu = new PIXI.Sprite(PIXI.loader.resources["menu.png"].texture); 
+      menu.scale.set(1,1);
+      menu.x = 100;
+      menu.y = 150;
+      menu.visible = false;
+
+			//USE A TILESET			
 			//Create the `tileset` sprite from the texture and
 			//Create a rectangle object that defines the position and
 			//size of the sub-image you want to extract from the texture
-			let texture1 = new PIXI.Texture(loader.resources["tileset.png"].texture﻿, new PIXI.Rectangle(128, 0, 64, 64));
+			//let texture1 = new PIXI.Texture(loader.resources["tileset.png"].texture﻿, new PIXI.Rectangle(128, 0, 64, 64));
 			
 			//Create the player sprite from the texture
-			player = new Sprite(texture1);			
-
+			player = new PIXI.Sprite(PIXI.loader.resources["player.png"].texture); 			
+      player.scale.set(0.2,0.2);
 			//Position the player sprite on the canvas
-			player.x = 0;
-			player.y = 10;
-			
+			player.x = 600;
+			player.y = 300;			
 			// set its velocity
 			player.vx = 0;
 			player.vy = 0;
@@ -77,8 +105,8 @@
 			lion = new Sprite(texture2);
 			
 			//Position the Animal sprite and add to stage
-			lion.x = 400;
-			lion.y = 25;	
+			lion.x = 435;
+			lion.y = 100;	
       app.stage.addChild(lion);
       
       // Create an Animal sprite
@@ -86,8 +114,8 @@
 			cat = new Sprite(texture3);
 			
 			//Position the Animal sprite and add to stage
-			cat.x = 60;
-			cat.y = 255;	
+			cat.x = 860;
+			cat.y = 290;	
 			app.stage.addChild(cat);
 			
 			
@@ -96,23 +124,54 @@
       let left = keyboard(37),
           up = keyboard(38),
           right = keyboard(39),
-          down = keyboard(40);
+          down = keyboard(40),
+          close = keyboard(88),
+          resA = keyboard(65),
+          resB = keyboard(66),
+          resC = keyboard(67),
+          goback = keyboard(90);
+
+      // Close menu
+      close.press = () => {
+        menu.visible = false;
+      };
+
+      // Rescue options
+      resA.press = () => {
+        menu.visible = false;
+        streets.visible = true;
+      }
+      resB.press = () => {
+        menu.visible = false;
+        dirt.visible = true;
+      }
+      resC.press = () => {
+        menu.visible = false;
+        city.visible = true;
+      }
+      
+      // Go back to main screen
+      goback.press = () => {
+        menu.visible = false;
+        streets.visible = false;   
+        dirt.visible = false;
+        city.visible = false;  
+      }
+
       //Left arrow key `press` method
       left.press = () => {
         //Change the player's velocity when the key is pressed
         player.vx = -5;
         player.vy = 0;
-      };
-      
-      //Left arrow key `release` method
+      };      
       left.release = () => {
         //If the left arrow has been released, and the right arrow isn't down,
-        //and the player isn't moving vertically:
-        //Stop the player
+        //and the player isn't moving vertically so  stop the player
         if (!right.isDown && player.vy === 0) {
           player.vx = 0;
         }
       };
+
       //Up
       up.press = () => {
         player.vy = -5;
@@ -123,6 +182,7 @@
           player.vy = 0;
         }
       };
+
       //Right
       right.press = () => {
         player.vx = 5;
@@ -133,6 +193,7 @@
           player.vx = 0;
         }
       };
+
       //Down
       down.press = () => {
         player.vy = 5;
@@ -143,7 +204,18 @@
           player.vy = 0;
         }
       };
-	
+  
+      // Add Menu last so it's on top      
+      app.stage.addChild(menu);
+
+      // for now other places cover everything
+      app.stage.addChild(streets); 
+      streets.visible = false;
+      app.stage.addChild(dirt); 
+      dirt.visible = false;
+      app.stage.addChild(city); 
+      city.visible = false;
+
 			//Set the game state
 			state = play;
 			
@@ -165,24 +237,34 @@
 			player.y += player.vy
       
       // make player come back around
-			if (player.x > 512)			
-        player.x = 0;
-      if (player.y > 512)  
-        player.y = 0;
+			if (player.x > 970)			
+        player.x = 970;
+      if (player.y > 640)  
+        player.y = 640;
       if (player.x < 0)			
-        player.x = 512;
-      if (player.y < 0)  
-        player.y = 512;
+        player.x = 0;
+      if (player.y < 90)  
+        player.y = 90;
 		
 				
-			//check for a collision between the player and the box
+			//check for a collision between the player and the animals
 			if (hitTestRectangle(player, lion)) {
-				message.text = "Touching";
+        message.text = "Touching";
+        debounce = true;
       } else if (hitTestRectangle(player, cat)){
-				message.text = "Touching";
+        message.text = "Touching";
+        debounce = true;
+	    } else if (hitTestRectangle(player, van)) {
+        if (debounce == false){
+          menu.visible = true;
+        }
+        debounce = true;
 	    } else {
+        debounce = false;
 				message.text = "";
 			}
+      
+      
 					
 		}
 
