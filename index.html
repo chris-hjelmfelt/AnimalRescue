@@ -41,10 +41,10 @@
       .add("player.png")
       .add("van.png")
       .add("menu.png")
-			.add("tileset.png")
+			.add("animalsprites.png")
 			.load(setup);
 
-    let state, message, player, van, menu, lion, cat;
+    let state, message, player, van, menu, dog1, cat;
     let debounce = false;
 		
 		//This `setup` function will run when the image has loaded
@@ -101,16 +101,16 @@
 			
 			
 			// Create an Animal sprite
-			let texture2 = new PIXI.Texture(loader.resources["tileset.png"].texture﻿, new PIXI.Rectangle(64, 0, 64, 64));
-			lion = new Sprite(texture2);
+			let texture2 = new PIXI.Texture(loader.resources["animalsprites.png"].texture﻿, new PIXI.Rectangle(0, 0, 64, 64));
+			dog1 = new Sprite(texture2);
 			
 			//Position the Animal sprite and add to stage
-			lion.x = 435;
-			lion.y = 100;	
-      app.stage.addChild(lion);
+			dog1.x = 365;
+			dog1.y = 100;	
+      app.stage.addChild(dog1);
       
       // Create an Animal sprite
-			let texture3 = new PIXI.Texture(loader.resources["tileset.png"].texture﻿, new PIXI.Rectangle(0, 64, 64, 64));
+			let texture3 = new PIXI.Texture(loader.resources["animalsprites.png"].texture﻿, new PIXI.Rectangle(64, 0, 64, 64));
 			cat = new Sprite(texture3);
 			
 			//Position the Animal sprite and add to stage
@@ -248,7 +248,7 @@
 		
 				
 			//check for a collision between the player and the animals
-			if (hitTestRectangle(player, lion)) {
+			if (hitTestRectangle(player, dog1)) {
         message.text = "Touching";
         debounce = true;
       } else if (hitTestRectangle(player, cat)){
