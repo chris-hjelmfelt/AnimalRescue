@@ -48,3 +48,14 @@ function hitTestRectangle(r1, r2) {
   //`hit` will be either `true` or `false`
   return hit;
 };
+
+
+function wallColisions(who) {
+  let collided = false;
+  for (let i = 0; i < (numWallsV + numWallsH); i++ ) {
+    if (collided == false && streets.visible){
+      collided = hitTestRectangle(who, walls[i]);
+    }
+  }
+  return collided;  
+}

@@ -51,7 +51,8 @@
       .add("player.png")
       .add("van.png")
       .add("menu.png")
-			.add("animalsprites.png")
+      .add("animalsprites.png")
+      .add("wallsprites.png")
 			.load(setup);
 
     let state, facility, streets, message, player, van, menu, dog1, cat, dirt, city;
@@ -59,6 +60,7 @@
     let currLocation = 'facility';
     let debounce1 = false;
     let debounce2 = false;
+    let debounceN = false, debounceE = false, debounceS = false, debounceW = false;
 		
 		//This `setup` function will run when the image has loaded
 		function setup() {		
@@ -83,6 +85,7 @@
       complete : addMenus()//called when AJAX transaction finishes 
       });      
 
+      hideStreets();
 			//Set the game state
 			state = play;
       
@@ -100,47 +103,12 @@
 
 
 		function play(delta) {
-      // // check for obstactles before moving
-      // if (hitTestRectangle(player, wall) || hitTestRectangle(player, wall2)) { 
-      //   player.x += -player.vx;
-      //   player.y += -player.vy;
-      // } else {
-      //   //Use the player's velocity to make it move
-      //   player.x += player.vx;
-      //   player.y += player.vy
-      // }
-	    			
-      //Use the player's velocity to make them move
-      player.x += player.vx;
-      player.y += player.vy
-
-      // stop player at edges
-			if (player.x > 970)			
-        player.x = 970;
-      if (player.y > 640)  
-        player.y = 640;
-      if (player.x < 0)			
-        player.x = 0;
-      if (player.y < 90)  
-        player.y = 90;
-		
-				
-			//check for a collision between the player and the animals
-			if (hitTestRectangle(player, dog1)) {
-        message.text = "Touching";
-        debounce2 = true;
-      } else if (hitTestRectangle(player, cat)){
-        message.text = "Touching";
-        debounce2 = true;
-	    } else if (hitTestRectangle(player, van)) {
-        if (debounce2 == false && van.visible == true){
-          menu.visible = true;
-        }
-        debounce2 = true;
-	    } else {
-        debounce2 = false;
-				message.text = "";
-      }	
+      // check for collision with walls
+      let playID = setTimeout( () => {movePlayer()}, 50)
+      
+      if (streets.visible) {
+        let animalID = setTimeout( () => {moveAnimal(dog1)}, 40)
+      }
       
       // check van is gone
       if (van.position.x < -200) {
@@ -156,13 +124,71 @@
         } else {
           city.visible = true;          
           player.y = 520;
-        }
-        
-        
-        van.position.x = 15;  // without this we can't close streets
+        }        
+        van.position.x = 15;  // without this we can't close streets and this if statement will keep running
       }
     } // end of play function
      
+    function movePlayer() {
+      // check for obstactles before moving
+      let newPlayerX = player.x + player.vx;
+      let newPlayerY = player.y + player.vy;
+      let collided = wallColisions(player);
+	    			
+      //Use the player's velocity to make them move
+      if (collided == false) {
+        player.x = newPlayerX;
+        player.y = newPlayerY;
+        debounceN = false, debounceE = false, debounceS = false, debounceW = false;
+      } else {
+        if (debounceN == false){
+          debounceN = true;
+          player.y -= 5;
+        } else if (debounceE == false){
+          debounceE = true;
+          player.y += 5;
+          player.x += 5;
+        } else if (debounceS == false){
+          debounceS = true;
+          player.x -= 5;
+          player.y += 5;
+        } else if (debounceW == false){
+          debounceW = true;
+          player.y -= 5;
+          player.x -= 5;
+        } else {
+          player.x = streetLocX;
+          player.y = streetLocY;
+        }
+      }
+
+      // check for a collision between the player and the animals
+      if (hitTestRectangle(player, dog1)) {
+        message.text = "Touching";
+        debounce2 = true;
+      } else if (hitTestRectangle(player, cat)){
+        message.text = "Touching";
+        debounce2 = true;
+      } else if (hitTestRectangle(player, van)) {
+        if (debounce2 == false && van.visible == true){
+          menu.visible = true;
+        }
+        debounce2 = true;
+      } else {
+        debounce2 = false;
+        message.text = "";
+      }	
+
+      // stop player at edges
+			if (player.x > 970)			
+        player.x = 970;
+      if (player.y > 640)  
+        player.y = 640;
+      if (player.x < 0)			
+        player.x = 0;
+      if (player.y < 90)  
+        player.y = 90;
+    }
 
     function moveVan() {
       tID = setInterval ( () => {van.position.x -= 5}, 20)            

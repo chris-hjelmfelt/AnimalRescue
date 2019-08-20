@@ -24,6 +24,7 @@ function showFacility(){
   van.visible = true;
   dog1.visible = true;
   cat.visible = true;
+  turtle.visible = true;
 }
 
 function hideFacility() {
@@ -31,4 +32,5 @@ function hideFacility() {
   van.visible = false;
   dog1.visible = false;
   cat.visible = false;
+  turtle.visible = false;
 }
