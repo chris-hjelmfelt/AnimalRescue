@@ -59,3 +59,17 @@ function wallColisions(who) {
   }
   return collided;  
 }
+
+function animalCollisions() {
+  // check for a collision between the player and the animals
+  if (hitTestRectangle(player, dog1)) {
+    message.text = "Touching";
+    if (streets.visible) {
+      caught = true;
+      dog1.x = player.x-5;
+      dog1.y = player.y+8;
+    }
+  } else if (hitTestRectangle(player, cat)){
+    message.text = "Touching";
+  }
+}
