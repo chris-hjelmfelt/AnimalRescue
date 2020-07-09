@@ -53,20 +53,25 @@ function showStreets() {
   streets.visible = true;
   player.scale.set(0.1,0.1);
   player.x = streetLocX;
-  player.y = streetLocY;  
-  dog1.scale.set(0.7,0.7);
-  dog1.x = 540;
-  dog1.y = 245;
+  player.y = streetLocY;    
+  console.log(newDog);
+  dogs[newDog].scale.set(0.7,0.7);
+  dogs[newDog].x = 540;
+  dogs[newDog].y = 245;
+  dogs[newDog].visible = true;
   for(let i=0; i < (numWallsV + numWallsH); i++) {
     walls[i].visible = true;
   }
   topEdge = 0;
 }
 
+
 function hideStreets() {
   streets.visible = false;
-  player.scale.set(0.2,0.2);  
-  dog1.scale.set(1,1);
+  player.scale.set(0.2,0.2);
+  if (caught) {
+    animals[currAnimal].Sprite.scale.set(1,1); 
+  }
   for(let i=0; i < (numWallsV + numWallsH); i++) {
     walls[i].visible = false;
   }

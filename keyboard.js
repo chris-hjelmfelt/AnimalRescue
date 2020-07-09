@@ -9,7 +9,9 @@
           resA = keyboardHelper(65),
           resB = keyboardHelper(66),
           resC = keyboardHelper(67),
-          goback = keyboardHelper(90);
+          goback = keyboardHelper(90),
+          yes = keyboardHelper(89),
+          no = keyboardHelper(78);
 
       // Close menu
       close.press = () => {
@@ -18,8 +20,8 @@
 
       // Rescue options
       resA.press = () => {
-        if (menu.visible == true){
-          menu.visible = false;
+        if (vanMenu.visible == true){
+          vanMenu.visible = false;
           player.visible = false;
           currLocation = 'streets';
           $.ajax({
@@ -30,8 +32,8 @@
         }
       }
       resB.press = () => {
-        if (menu.visible == true){
-          menu.visible = false;
+        if (vanMenu.visible == true){
+          vanMenu.visible = false;
           player.visible = false;
           currLocation = 'dirt';
           $.ajax({
@@ -42,8 +44,8 @@
         }
       }
       resC.press = () => {
-        if (menu.visible == true){
-          menu.visible = false;
+        if (vanMenu.visible == true){
+          vanMenu.visible = false;
           player.visible = false;
           currLocation = 'city';
           $.ajax({
@@ -56,13 +58,24 @@
       
       // Go back to main screen
       goback.press = () => {
-        menu.visible = false;
-        hideStreets();
-        showFacility();  
-        dirt.visible = false;
-        city.visible = false;  
-        player.x = 600;
-        player.y = 300;
+        goBack();        
+      }
+
+      // Player choose yes
+      yes.press = () => {        
+        if (cageMenu.visible){          
+          caught = true;    
+        } else if (vetMenu.visible) {
+          atVet();
+        } else if (adoptMenu.visible) {
+          atAdopt();
+        }
+        closeAllMenus();
+      }
+
+      // Player choose no
+      no.press = () => {      
+        closeAllMenus();
       }
 
       //Left arrow key `press` method

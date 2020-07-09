@@ -49,27 +49,41 @@ function hitTestRectangle(r1, r2) {
   return hit;
 };
 
+// Check if the player is touching the cages
+function cageCollisions() {
+  let collided = false;
+  for (let i = 0; i < numCages; i++ ) {
+    if (collided == false && facility.visible){
+      collided = hitTestRectangle(player, cages[i]);
+      currCage = i;
+    }
+  }
+  return collided;  
+}
 
+// check for player or animal collision with walls in Streets
 function wallColisions(who) {
   let collided = false;
   for (let i = 0; i < (numWallsV + numWallsH); i++ ) {
-    if (collided == false && streets.visible){
+    if (collided == false){
       collided = hitTestRectangle(who, walls[i]);
     }
   }
   return collided;  
 }
 
+// see if player is touching an animal
 function animalCollisions() {
   // check for a collision between the player and the animals
-  if (hitTestRectangle(player, dog1)) {
-    message.text = "Touching";
+  if (hitTestRectangle(player, dogs[newDog])) {
+    message.text = "dog";
     if (streets.visible) {
-      caught = true;
-      dog1.x = player.x-5;
-      dog1.y = player.y+8;
-    }
-  } else if (hitTestRectangle(player, cat)){
-    message.text = "Touching";
-  }
+      caught = true;     
+      currAnimal = addToAnimals();
+      animals[currAnimal].x = player.x-5;
+      animals[currAnimal].y = player.y+8; 
+      setTimeout( () => {goBack()}, 2000)
+    }    
+  } 
 }
+
